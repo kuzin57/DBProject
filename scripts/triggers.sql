@@ -1,0 +1,67 @@
+-- trigger #1 (updates users' history table)
+CREATE OR REPLACE FUNCTION music.write_users_history()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    INSERT INTO music.Users_history VALUES (
+        OLD.user_id,
+        OLD.password,
+        OLD.firstname,
+        OLD.surname,
+        OLD.country,
+        OLD.privileged,
+        OLD.playlists,
+        OLD.email,
+        NOW()
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER users_update
+    AFTER UPDATE OR DELETE ON music.Users
+    FOR EACH ROW EXECUTE FUNCTION music.write_users_history();
+
+
+-- trigger #2 (updates playlists' history table)
+CREATE OR REPLACE FUNCTION music.write_playlists_history()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    INSERT INTO music.Playlists_history VALUES (
+        OLD.name,
+        OLD.creator_id,
+        OLD.songs,
+        NOW()
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER playlists_update
+    AFTER UPDATE OR DELETE ON music.Playlists
+    FOR EACH ROW EXECUTE FUNCTION music.write_playlists_history();
+
+
+-- trigger #3 (updates number of songs in playlists' table)
+CREATE OR REPLACE FUNCTION music.update_songs_number()
+RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (TG_OP = 'INSERT') THEN
+        UPDATE music.Playlists
+        SET songs = songs + 1
+        WHERE name = NEW.playlist;
+        RETURN NEW;
+    END IF;
+
+    UPDATE music.Playlists
+    SET songs = songs - 1
+    WHERE name = OLD.playlist;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER song_number_update
+    AFTER INSERT OR DELETE ON music.Playlists_songs
+    FOR EACH ROW EXECUTE FUNCTION music.update_songs_number();

@@ -1,0 +1,66 @@
+SELECT songwriter, COUNT(genre) as genres
+FROM (
+    SELECT music.Songwriters.name as songwriter, song_name
+    FROM music.Songwriters
+    LEFT OUTER JOIN music.Songs_songwriters
+    ON music.Songwriters.name = music.Songs_songwriters.songwriter
+) as songwriters_songs
+LEFT OUTER JOIN music.Songs
+ON songwriters_songs.song_name = music.Songs.name
+GROUP BY songwriters_songs.songwriter;
+---
+SELECT country, avg_rating, songwriters_cnt
+FROM (
+    SELECT
+        country,
+        AVG(rating) OVER (PARTITION BY country) as avg_rating,
+        ROW_NUMBER() OVER (PARTITION BY country) as row_num,
+        COUNT(*) OVER (PARTITION BY country) as songwriters_cnt
+    FROM music.Songwriters
+) as subquery
+WHERE row_num = 1
+ORDER BY avg_rating DESC;
+---
+SELECT DISTINCT
+name, COUNT(user_id) OVER (PARTITION BY name) as likes_cnt
+FROM (
+    SELECT name, song_name
+    FROM music.Songwriters
+    LEFT OUTER JOIN music.Songs_songwriters
+    ON music.Songwriters.name = music.Songs_songwriters.songwriter
+) as subquery
+LEFT OUTER JOIN music.Likes
+ON subquery.song_name = music.Likes.song_name;
+---
+SELECT user_id, COUNT(*) as likes_cnt
+FROM music.likes
+GROUP BY user_id
+HAVING COUNT(*) >= 2;
+---
+SELECT DISTINCT
+name, likes_cnt
+FROM (
+    SELECT name, playlist_song.song_name, COUNT(user_id) OVER (PARTITION BY name) as likes_cnt
+    FROM (
+        SELECT name, song_name
+        FROM music.Playlists
+        LEFT OUTER JOIN music.Playlists_songs
+        ON music.Playlists.name = music.Playlists_songs.playlist
+    ) as playlist_song
+    LEFT OUTER JOIN music.Likes
+    ON music.Likes.song_name = playlist_song.song_name
+) as subquery
+ORDER BY likes_cnt DESC
+LIMIT 5;
+---
+SELECT subquery.name, album_name, published
+FROM (
+    SELECT name, album_name
+    FROM music.Songwriters
+    LEFT OUTER JOIN music.Albums_songwriters
+    ON music.Songwriters.name = music.Albums_songwriters.songwriter
+) as subquery
+LEFT OUTER JOIN music.Albums
+ON subquery.album_name = music.Albums.name
+WHERE music.Albums.published > '1980-01-01'
+ORDER BY published;

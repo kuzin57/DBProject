@@ -1,0 +1,23 @@
+DELETE FROM music.Songs_songwriters;
+---
+DELETE FROM music.Albums_songwriters;
+---
+DELETE FROM music.Albums_songs;
+---
+DELETE FROM music.Playlists_songs;
+---
+DELETE FROM music.Forbidden;
+---
+DELETE FROM music.Likes;
+---
+DELETE FROM music.Albums;
+---
+DELETE FROM music.Countries;
+---
+DELETE FROM music.Playlists;
+---
+DELETE FROM music.Users;
+---
+DELETE FROM music.Songs;
+---
+DELETE FROM music.Songwriters;

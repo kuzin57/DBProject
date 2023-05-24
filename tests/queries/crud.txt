@@ -1,0 +1,19 @@
+SELECT name, country, language, song_name
+FROM music.Songwriters
+INNER JOIN music.Songs_songwriters
+ON music.Songwriters.name = music.Songs_songwriters.songwriter;
+---
+SELECT name, link, user_id
+FROM music.Songs
+LEFT OUTER JOIN music.Likes
+ON music.Songs.name = music.Likes.song_name;
+---
+SELECT user_id, playlists, name, songs
+FROM music.Users
+LEFT OUTER JOIN music.Playlists
+ON music.Users.user_id = music.Playlists.creator_id;
+---
+INSERT INTO music.Songwriters VALUES ('Моргенштерн', 0.0, '2010-01-01', 'Russia', 'Русский');
+INSERT INTO music.Songwriters VALUES ('МС Пох', 0.0, NULL, 'Russia', 'Русский');
+---
+DELETE FROM music.Songwriters WHERE name = 'Моргенштерн' or name = 'МС Пох';

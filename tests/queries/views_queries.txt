@@ -1,0 +1,7 @@
+SELECT * FROM music.Forbidden_songs_view;
+---
+SELECT * FROM music.Bands_songs_albums;
+---
+SELECT * FROM music.Album_durations;
+---
+SELECT * FROM music.Songs_users_playlists;
